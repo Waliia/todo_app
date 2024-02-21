@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:todo_app/data/database.dart';
 import 'package:todo_app/utils/dialog_box.dart';
 import 'package:todo_app/utils/todo_tile.dart';
 
@@ -10,14 +12,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List todoList = [
-    ['Make a new name', false],
-    ['Go to the gym', true]
-  ];
+  final _myBox = Hive.box('mybox');
+  ToDoDatabase db = ToDoDatabase();
 
   void checkBoxChanged(bool? value, int index) {
     setState(() {
-      todoList[index][1] = !todoList[index][1];
+      db.todoList[index][1] = !db.todoList[index][1];
+      db.updateDatabases();
     });
   }
 
@@ -25,9 +26,10 @@ class _HomePageState extends State<HomePage> {
 
   void saveNewNote() {
     setState(() {
-      todoList.add([_controller.text, false]);
+      db.todoList.add([_controller.text, false]);
       _controller.clear();
       Navigator.pop(context);
+      db.updateDatabases();
     });
   }
 
@@ -51,8 +53,22 @@ class _HomePageState extends State<HomePage> {
 
   void deleteNote(int index) {
     setState(() {
-      todoList.removeAt(index);
+      db.todoList.removeAt(index);
+      db.updateDatabases();
     });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    if (_myBox.get('TODOLIST') == null) {
+      return db.createInitialData();
+    } else {
+      db.loadData();
+    }
+
+    super.initState();
   }
 
   @override
@@ -66,11 +82,11 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: ListView.builder(
-        itemCount: todoList.length,
+        itemCount: db.todoList.length,
         itemBuilder: (context, index) {
           return TodoTile(
-            taskName: todoList[index][0],
-            taskCompleted: todoList[index][1],
+            taskName: db.todoList[index][0],
+            taskCompleted: db.todoList[index][1],
             onChanged: (value) => checkBoxChanged(value, index),
             deleteFunction: (p0) => deleteNote(index),
           );

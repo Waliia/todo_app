@@ -18,8 +18,9 @@ class TodoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 25, right: 25, left: 25),
+      // slide for the delete task
       child: Slidable(
-        endActionPane: ActionPane(motion: StretchMotion(), children: [
+        endActionPane: ActionPane(motion: const StretchMotion(), children: [
           SlidableAction(
             onPressed: deleteFunction,
             backgroundColor: Colors.red.shade400,
@@ -27,6 +28,7 @@ class TodoTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           )
         ]),
+        // task tile design
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
